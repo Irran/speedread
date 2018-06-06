@@ -68,7 +68,7 @@ public class UpdateBook extends HttpServlet{
     }
     
     public String getTrainingBookList(int level) throws IOException, NoSuchAlgorithmException {
-    	String basepath = String.format("class_training/level_%d/", level);
+    	String basepath = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/"), level);
 		BufferedReader resource = new BufferedReader(new FileReader(basepath + "resources.txt"));
 		ArrayList<String> names = new ArrayList<String>();
 		ArrayList<String> passages = new ArrayList<String>();
@@ -94,7 +94,7 @@ public class UpdateBook extends HttpServlet{
     }
     
     public String getImage(String name) throws IOException {
-    	String path = "test_books/" + name;
+    	String path = this.getServletContext().getRealPath("/") + "test_books/" + name;
     	String content = readToEnd(path);
     	JsonObject ret = new JsonObject();
     	ret.addProperty("resource", "image");
@@ -104,7 +104,7 @@ public class UpdateBook extends HttpServlet{
     }
     
     public String getReview(String name) throws IOException {
-    	String path = "test_books/" + name;
+    	String path =this.getServletContext().getRealPath("/") + "test_books/" + name;
     	JsonParser parser = new JsonParser();
     	JsonObject content = (JsonObject) parser.parse(new FileReader(path));
     	JsonObject ret = new JsonObject();
@@ -115,7 +115,7 @@ public class UpdateBook extends HttpServlet{
     }
     
     public String getBook(int level,String name) throws IOException {
-    	String path = String.format("class_training/level_%d/", level) + name;
+    	String path = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/") , level) + name;
     	String content = readToEnd(path);
     	JsonObject ret = new JsonObject();
     	ret.addProperty("resource", "book");
