@@ -70,35 +70,51 @@ public class UpdateBook extends HttpServlet{
     public String getTrainingBookList(int level) throws IOException, NoSuchAlgorithmException {
     	String basepath = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/"), level);
 		BufferedReader resource = new BufferedReader(new FileReader(basepath + "resources.txt"));
-		ArrayList<String> names = new ArrayList<String>();
-		ArrayList<String> passages = new ArrayList<String>();
+		ArrayList<String> reviewNames = new ArrayList<String>();
+		ArrayList<String> reviews = new ArrayList<String>();
+		ArrayList<String> imageNames = new ArrayList<String>();
+		ArrayList<String> images = new ArrayList<String>();
 		String line = null;
 		while((line = resource.readLine()) != null) {
-			String passage = line.substring(0, line.indexOf(','));
-			names.add(passage);
-			passages.add(encodedByMD5(readToEnd(basepath + passage)));
+			String review = line.substring(0, line.indexOf(','));
+			String image = line.substring(line.indexOf(',')+1);
+			reviewNames.add(review);
+		    reviews.add(encodedByMD5(readToEnd(basepath + review)));
+		    imageNames.add(image);
+		    images.add(encodedByMD5(readToEnd(basepath + image)));
 		}
 		JsonObject trainingBooksList = new JsonObject();
 		trainingBooksList.addProperty("resource", "list");
 		trainingBooksList.addProperty("type", "class_training");
 		trainingBooksList.addProperty("level", level);
 		JsonArray content = new JsonArray();
-		for(int i=0;i<names.size();i++) {
+		for(int i=0;i<reviewNames.size();i++) {
 			JsonArray item = new JsonArray();
-			item.add(names.get(i));
-			item.add(passages.get(i));
+			item.add(reviewNames.get(i));
+			item.add(reviews.get(i));
+			item.add(imageNames.get(i));
+			item.add(images.get(i));
 			content.add(item);
 		}
 		trainingBooksList.add("content", content);
 		return trainingBooksList.toString();
     }
     
-    public String getImage(String name) throws IOException {
-    	String path = this.getServletContext().getRealPath("/") + "test_books/" + name;
-    	String content = readToEnd(path);
-    	JsonObject ret = new JsonObject();
+    public String getImage(int level, String name) throws IOException {
+		String path = "";
+		JsonObject ret = new JsonObject();
     	ret.addProperty("resource", "image");
     	ret.addProperty("name", name);
+		if(level == -1) {
+			ret.addProperty("type", "test_books");
+			path = this.getServletContext().getRealPath("/") + "test_books/" + name;
+		}
+		else {
+			ret.addProperty("type", "class_training");
+			ret.addProperty("level", level);
+			path = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/") , level) + name;
+		}
+    	String content = readToEnd(path);
     	ret.addProperty("content", content);
     	return ret.toString();
     }
@@ -115,11 +131,22 @@ public class UpdateBook extends HttpServlet{
     }
     
     public String getBook(int level,String name) throws IOException {
-    	String path = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/") , level) + name;
-    	String content = readToEnd(path);
-    	JsonObject ret = new JsonObject();
-    	ret.addProperty("resource", "book");
+		String path = "";
+		JsonObject ret = new JsonObject();
+    	
     	ret.addProperty("name", name);
+		if(level == -1) {
+			path =this.getServletContext().getRealPath("/") + "test_books/" + name;
+			ret.addProperty("resource", "review");
+			ret.addProperty("type", "test_books");
+		} 
+		else {
+			ret.addProperty("resource", "book");
+			ret.addProperty("type", "class_training");
+			ret.addProperty("level", level);
+			path = String.format("%sclass_training/level_%d/",this.getServletContext().getRealPath("/") , level) + name;
+		}
+    	String content = readToEnd(path);
     	ret.addProperty("content", content);
     	return ret.toString();
     }
@@ -145,13 +172,18 @@ public class UpdateBook extends HttpServlet{
 				String name = json.get("name").getAsString();
 				if(type.equals("test_books")) {
 					String tag = json.get("tag").getAsString();
+					int level = -1;
 					if(tag.equals("image"))
-						out.println(getImage(name));
+						out.println(getImage(level, name));
 					else if(tag.equals("review"))
-						out.println(getReview(name));
+						out.println(getBook(level, name));
 				}else if(type.equals("class_training")) {
 					int level = json.get("level").getAsInt();
-					out.println(getBook(level,name));
+					String tag = json.get("tag").getAsString();
+					if(tag.equals("image"))
+						out.println(getImage(level, name));
+					else if(tag.equals("book"))
+						out.println(getBook(level, name));
 				}
 			}
 		} catch (Exception e) {
