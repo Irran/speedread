@@ -114,6 +114,3 @@ example
 查询图片icon_0.base64具体信息
 
 [http://www.irran.top:8080/speedread/?jsonstr=%7B%22cmd%22%3A%22get\_resource%22%2C%22type%22%3A%22test\_books%22%2C%22tag%22%3A%22image%22%2C%22name%22%3A%22icon_0.base64%22%7D](http://www.irran.top:8080/speedread/?jsonstr=%7B%22cmd%22%3A%22get_resource%22%2C%22type%22%3A%22test_books%22%2C%22tag%22%3A%22image%22%2C%22name%22%3A%22icon_0.base64%22%7D)
-
----
-因为貌似原文件是用gbk编码的，所以从网页返回的数据也用了gbk
