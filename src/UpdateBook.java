@@ -126,7 +126,7 @@ public class UpdateBook extends HttpServlet{
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setCharacterEncoding("gbk");
+		resp.setCharacterEncoding("utf-8");
 		PrintWriter out = resp.getWriter();
 		try {
 			String jsonstr = req.getParameter("jsonstr");
